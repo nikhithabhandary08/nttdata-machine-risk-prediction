@@ -213,3 +213,40 @@ def get_machines(
         )
 
     return response
+
+
+@router.get(
+    "/{machine_id}",
+    response_model=MachineResponse,
+)
+def get_machine(
+    machine_id: int,
+    db: Session = Depends(get_db),
+):
+    machine = (
+        db.query(MachineRecord)
+        .filter(MachineRecord.id == machine_id)
+        .first()
+    )
+
+    if not machine:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Machine with ID {machine_id} not found.",
+        )
+
+    response_values = []
+
+    for machine_value in machine.values:
+        response_values.append(
+            {
+                "field_id": machine_value.field_id,
+                "field_name": machine_value.field.name,
+                "value": machine_value.value,
+            }
+        )
+
+    return MachineResponse(
+        id=machine.id,
+        values=response_values,
+    )
