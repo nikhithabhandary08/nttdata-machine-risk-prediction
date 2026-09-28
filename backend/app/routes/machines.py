@@ -422,3 +422,29 @@ def update_machine(
         id=db_machine.id,
         values=response_values,
     )
+
+
+@router.delete(
+    "/{machine_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_machine(
+    machine_id: int,
+    db: Session = Depends(get_db),
+):
+    # Check whether the machine exists
+    db_machine = (
+        db.query(MachineRecord)
+        .filter(MachineRecord.id == machine_id)
+        .first()
+    )
+
+    if not db_machine:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Machine with ID {machine_id} not found.",
+        )
+
+    # Delete the machine
+    db.delete(db_machine)
+    db.commit()
