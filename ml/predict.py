@@ -1,5 +1,6 @@
 import joblib
 import pandas as pd
+from pathlib import Path
 
 
 VIBRATION_MAPPING = {
@@ -21,7 +22,9 @@ def predict_risk(
             "Vibration must be Low, Medium, or High."
         )
 
-    model = joblib.load("risk_model.joblib")
+    model_path = Path(__file__).resolve().parent / "risk_model.joblib"
+
+    model = joblib.load(model_path)
 
     input_data = pd.DataFrame(
         [
