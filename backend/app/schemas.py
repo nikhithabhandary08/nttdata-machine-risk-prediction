@@ -44,3 +44,23 @@ class FieldResponse(BaseModel):
     options: list[str] | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MachineValueCreate(BaseModel):
+    field_id: int = Field(gt=0)
+    value: str
+
+
+class MachineCreate(BaseModel):
+    values: list[MachineValueCreate]
+
+
+class MachineValueResponse(BaseModel):
+    field_id: int
+    field_name: str
+    value: str
+
+
+class MachineResponse(BaseModel):
+    id: int
+    values: list[MachineValueResponse]
