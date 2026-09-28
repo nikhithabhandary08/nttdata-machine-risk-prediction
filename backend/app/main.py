@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 
-from .database import Base, engine
 from . import models
+from .database import Base, SessionLocal, engine
 from .routes.fields import router as fields_router
+from .seed import seed_initial_fields
 
 
 Base.metadata.create_all(bind=engine)
@@ -16,6 +17,15 @@ app = FastAPI(
 
 
 app.include_router(fields_router)
+
+
+@app.on_event("startup")
+def startup_event():
+    db = SessionLocal()
+    try:
+        seed_initial_fields(db)
+    finally:
+        db.close()
 
 
 @app.get("/")
