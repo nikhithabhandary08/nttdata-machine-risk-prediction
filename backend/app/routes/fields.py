@@ -1,6 +1,7 @@
 import json
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -14,11 +15,27 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=FieldResponse)
+@router.post(
+    "/",
+    response_model=FieldResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_field(
     field: FieldCreate,
     db: Session = Depends(get_db),
 ):
+    existing_field = (
+        db.query(FieldConfiguration)
+        .filter(FieldConfiguration.name == field.name)
+        .first()
+    )
+
+    if existing_field:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Field with name '{field.name}' already exists.",
+        )
+
     db_field = FieldConfiguration(
         name=field.name,
         field_type=field.field_type,
@@ -26,9 +43,16 @@ def create_field(
         options=json.dumps(field.options) if field.options else None,
     )
 
-    db.add(db_field)
-    db.commit()
-    db.refresh(db_field)
+    try:
+        db.add(db_field)
+        db.commit()
+        db.refresh(db_field)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Field with name '{field.name}' already exists.",
+        )
 
     return FieldResponse(
         id=db_field.id,
