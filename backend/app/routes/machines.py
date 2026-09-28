@@ -176,3 +176,40 @@ def create_machine(
         id=db_machine.id,
         values=response_values,
     )
+
+
+@router.get(
+    "/",
+    response_model=list[MachineResponse],
+)
+def get_machines(
+    db: Session = Depends(get_db),
+):
+    machines = (
+        db.query(MachineRecord)
+        .order_by(MachineRecord.id)
+        .all()
+    )
+
+    response = []
+
+    for machine in machines:
+        values = []
+
+        for machine_value in machine.values:
+            values.append(
+                {
+                    "field_id": machine_value.field_id,
+                    "field_name": machine_value.field.name,
+                    "value": machine_value.value,
+                }
+            )
+
+        response.append(
+            MachineResponse(
+                id=machine.id,
+                values=values,
+            )
+        )
+
+    return response
