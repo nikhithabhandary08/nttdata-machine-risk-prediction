@@ -64,3 +64,13 @@ class MachineValueResponse(BaseModel):
 class MachineResponse(BaseModel):
     id: int
     values: list[MachineValueResponse]
+
+
+class RiskPredictionRequest(BaseModel):
+    temperature: float
+    pressure: float
+    vibration: Literal["Low", "Medium", "High"]
+
+
+class RiskPredictionResponse(BaseModel):
+    risk: str

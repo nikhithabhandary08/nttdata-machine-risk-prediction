@@ -3,7 +3,13 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import FieldConfiguration, MachineRecord, MachineValue
-from ..schemas import MachineCreate, MachineResponse
+from ..schemas import (
+    MachineCreate,
+    MachineResponse,
+    RiskPredictionRequest,
+    RiskPredictionResponse,
+)
+from ..services.ml_service import predict_machine_risk
 
 
 router = APIRouter(
@@ -213,6 +219,37 @@ def get_machines(
         )
 
     return response
+
+
+@router.post(
+    "/predict",
+    response_model=RiskPredictionResponse,
+)
+def predict_machine_risk_endpoint(
+    request: RiskPredictionRequest,
+):
+    try:
+        risk = predict_machine_risk(
+            temperature=request.temperature,
+            pressure=request.pressure,
+            vibration=request.vibration,
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exc),
+        )
+
+    return RiskPredictionResponse(
+        risk=risk,
+    )
 
 
 @router.get(
