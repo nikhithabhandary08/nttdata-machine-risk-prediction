@@ -1,0 +1,17 @@
+temperature,pressure,vibration,risk
+60,90,Low,Low Risk
+65,95,Low,Low Risk
+70,100,Low,Low Risk
+68,105,Medium,Medium Risk
+72,110,Medium,Medium Risk
+75,115,Medium,Medium Risk
+80,115,High,High Risk
+85,120,High,High Risk
+90,125,High,High Risk
+95,130,High,High Risk
+55,85,Low,Low Risk
+78,108,Medium,Medium Risk
+88,122,High,High Risk
+62,92,Low,Low Risk
+73,102,Medium,Medium Risk
+92,128,High,High Risk
