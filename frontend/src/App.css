@@ -203,23 +203,39 @@
 }
 
 .stat-card {
+  min-height: 132px;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   border: 1px solid #dfe4ec;
   border-radius: 16px;
   background: #ffffff;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: #c7d7f7;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
 }
 
 .stat-label {
   display: block;
   color: #667085;
   font-size: 13px;
+  font-weight: 500;
 }
 
 .stat-card strong {
   display: block;
   margin: 10px 0 6px;
   color: #101828;
-  font-size: 27px;
+  font-size: 28px;
+  line-height: 1.2;
 }
 
 .stat-description {
@@ -264,9 +280,14 @@
 }
 
 .action-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: #93b4f8;
-  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  box-shadow: 0 10px 26px rgba(16, 24, 40, 0.08);
+}
+
+.action-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 2px;
 }
 
 .action-icon {

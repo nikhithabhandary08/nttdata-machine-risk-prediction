@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import FieldConfiguration from "./components/FieldConfiguration";
 import MachineRecords from "./components/MachineRecords";
 import RiskPrediction from "./components/RiskPrediction";
+import { getFields, getMachines } from "./services/api";
 
 function App() {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -97,12 +98,38 @@ function App() {
 }
 
 function Dashboard({ onNavigate }) {
+  const [fieldCount, setFieldCount] = useState(0);
+  const [machineCount, setMachineCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadDashboardStats() {
+      try {
+        const [fields, machines] = await Promise.all([
+          getFields(),
+          getMachines(),
+        ]);
+
+        setFieldCount(fields.length);
+        setMachineCount(machines.length);
+      } catch (error) {
+        console.error("Failed to load dashboard statistics:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDashboardStats();
+  }, []);
+
   return (
     <>
       <div className="welcome">
         <div>
           <p className="eyebrow">LOCAL MACHINE INTELLIGENCE</p>
+
           <h3>Manage machines. Predict risk.</h3>
+
           <p>
             Configure machine fields, manage machine records, and run local
             machine risk predictions.
@@ -118,7 +145,11 @@ function Dashboard({ onNavigate }) {
       <div className="stats-grid">
         <div className="stat-card">
           <span className="stat-label">Dynamic Fields</span>
-          <strong>—</strong>
+
+          <strong>
+            {loading ? "..." : fieldCount}
+          </strong>
+
           <span className="stat-description">
             Configured in the database
           </span>
@@ -126,7 +157,11 @@ function Dashboard({ onNavigate }) {
 
         <div className="stat-card">
           <span className="stat-label">Machine Records</span>
-          <strong>—</strong>
+
+          <strong>
+            {loading ? "..." : machineCount}
+          </strong>
+
           <span className="stat-description">
             Stored machine data
           </span>
@@ -134,7 +169,9 @@ function Dashboard({ onNavigate }) {
 
         <div className="stat-card">
           <span className="stat-label">Risk Model</span>
+
           <strong>Ready</strong>
+
           <span className="stat-description">
             Local Random Forest model
           </span>
@@ -145,6 +182,7 @@ function Dashboard({ onNavigate }) {
         <div className="section-heading">
           <div>
             <p className="eyebrow">QUICK ACTIONS</p>
+
             <h3>Choose where to start</h3>
           </div>
         </div>
@@ -155,7 +193,9 @@ function Dashboard({ onNavigate }) {
             onClick={() => onNavigate("fields")}
           >
             <span className="action-icon">⚙</span>
+
             <strong>Configure Fields</strong>
+
             <span>
               Add text, number, and dropdown fields.
             </span>
@@ -166,7 +206,9 @@ function Dashboard({ onNavigate }) {
             onClick={() => onNavigate("machines")}
           >
             <span className="action-icon">▣</span>
+
             <strong>Manage Machines</strong>
+
             <span>
               Create and manage machine records.
             </span>
@@ -177,7 +219,9 @@ function Dashboard({ onNavigate }) {
             onClick={() => onNavigate("prediction")}
           >
             <span className="action-icon">◈</span>
+
             <strong>Predict Risk</strong>
+
             <span>
               Run the local ML risk prediction.
             </span>
