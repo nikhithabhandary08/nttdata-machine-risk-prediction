@@ -574,3 +574,51 @@
     grid-template-columns: 1fr;
   }
 }
+
+.prediction-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.prediction-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.prediction-result strong {
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.risk-high {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.risk-high strong {
+  color: #dc2626;
+}
+
+.risk-medium {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.risk-medium strong {
+  color: #d97706;
+}
+
+.risk-low {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.risk-low strong {
+  color: #16a34a;
+}

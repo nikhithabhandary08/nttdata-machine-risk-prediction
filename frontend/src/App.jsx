@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import FieldConfiguration from "./components/FieldConfiguration";
 import MachineRecords from "./components/MachineRecords";
+import RiskPrediction from "./components/RiskPrediction";
 
 function App() {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -88,12 +89,7 @@ function App() {
 
           {activeSection === "machines" && <MachineRecords />}
 
-          {activeSection === "prediction" && (
-            <SectionPlaceholder
-              title="Risk Prediction"
-              description="Predict machine risk using the local Python ML model."
-            />
-          )}
+         {activeSection === "prediction" && <RiskPrediction />}
         </section>
       </main>
     </div>

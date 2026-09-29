@@ -90,3 +90,27 @@ export async function deleteMachine(machineId) {
     throw new Error(data.detail || "Failed to delete machine.");
   }
 }
+
+
+export async function predictMachineRisk(predictionData) {
+  const response = await fetch(
+    `${API_BASE_URL}/machines/predict`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(predictionData),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Failed to predict machine risk."
+    );
+  }
+
+  return data;
+}
