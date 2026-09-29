@@ -110,16 +110,16 @@ The application follows a simple full-stack architecture where the React fronten
                     │    SQLite    │  │  Python ML         │
                     │   Database   │  │    Component       │
                     │              │  │                    │
-                    │ • Fields    │  │ • predict.py       │
-                    │ • Machines  │  │ • predict_cli.py   │
-                    │ • Values    │  │ • Random Forest    │
+                    │ • Fields     │  │ • predict.py       │
+                    │ • Machines   │  │ • predict_cli.py   │
+                    │ • Values     │  │ • Random Forest    │
                     └──────────────┘  └──────────┬─────────┘
-                                                │
-                                                ▼
+                                                 │
+                                                 ▼
                                       ┌──────────────────┐
                                       │   Risk Result    │
                                       │                  │
-                                      │ Low / Medium /  │
+                                      │ Low / Medium /   │
                                       │ High Risk        │
                                       └──────────────────┘
 ```
