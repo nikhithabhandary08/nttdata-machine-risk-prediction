@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { createField, getFields } from "../services/api";
+import {
+  createField,
+  deleteField,
+  getFields,
+} from "../services/api";
 
 function FieldConfiguration() {
   const [fields, setFields] = useState([]);
@@ -87,14 +91,53 @@ function FieldConfiguration() {
     }
   }
 
+  async function handleDeleteField(field) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the "${field.name}" field?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    try {
+      await deleteField(field.id);
+
+      setSuccess(
+        `"${field.name}" field deleted successfully.`
+      );
+
+      await loadFields();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function isProtectedField(fieldName) {
+    const protectedFields = [
+      "Machine Name",
+      "Temperature",
+      "Pressure",
+      "Vibration",
+    ];
+
+    return protectedFields.includes(fieldName);
+  }
+
   return (
     <div className="module-page">
       <div className="module-header">
         <div>
           <p className="eyebrow">CONFIGURATION</p>
+
           <h3>Field Configuration</h3>
+
           <p>
-            Create dynamic fields that can be used in machine records.
+            Create dynamic fields that can be used in machine
+            records.
           </p>
         </div>
       </div>
@@ -104,44 +147,60 @@ function FieldConfiguration() {
           <div className="card-header">
             <div>
               <h4>Add New Field</h4>
+
               <p>
                 Define the name, type, and validation rules.
               </p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="field-form">
+          <form
+            onSubmit={handleSubmit}
+            className="field-form"
+          >
             <label>
               Field Name
+
               <input
                 type="text"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) =>
+                  setName(event.target.value)
+                }
                 placeholder="e.g. Humidity"
               />
             </label>
 
             <label>
               Field Type
+
               <select
                 value={fieldType}
-                onChange={(event) => setFieldType(event.target.value)}
+                onChange={(event) =>
+                  setFieldType(event.target.value)
+                }
               >
                 <option value="text">Text</option>
                 <option value="number">Number</option>
-                <option value="dropdown">Dropdown</option>
+                <option value="dropdown">
+                  Dropdown
+                </option>
               </select>
             </label>
 
             {fieldType === "dropdown" && (
               <label>
                 Dropdown Options
+
                 <input
                   type="text"
                   value={options}
-                  onChange={(event) => setOptions(event.target.value)}
+                  onChange={(event) =>
+                    setOptions(event.target.value)
+                  }
                   placeholder="Low, Medium, High"
                 />
+
                 <span className="input-help">
                   Separate options with commas.
                 </span>
@@ -152,8 +211,11 @@ function FieldConfiguration() {
               <input
                 type="checkbox"
                 checked={required}
-                onChange={(event) => setRequired(event.target.checked)}
+                onChange={(event) =>
+                  setRequired(event.target.checked)
+                }
               />
+
               <span>Required field</span>
             </label>
 
@@ -174,7 +236,9 @@ function FieldConfiguration() {
               className="primary-button"
               disabled={submitting}
             >
-              {submitting ? "Creating..." : "Create Field"}
+              {submitting
+                ? "Creating..."
+                : "Create Field"}
             </button>
           </form>
         </section>
@@ -183,8 +247,10 @@ function FieldConfiguration() {
           <div className="card-header">
             <div>
               <h4>Configured Fields</h4>
+
               <p>
-                Fields currently available for machine records.
+                Fields currently available for machine
+                records.
               </p>
             </div>
 
@@ -204,26 +270,47 @@ function FieldConfiguration() {
           ) : (
             <div className="field-list">
               {fields.map((field) => (
-                <div className="field-item" key={field.id}>
-                  <div>
-                    <strong>{field.name}</strong>
+                <div
+                  className="field-item"
+                  key={field.id}
+                >
+                  <div className="field-item-content">
+                    <div>
+                      <strong>{field.name}</strong>
 
-                    <div className="field-meta">
-                      <span className="type-badge">
-                        {field.field_type}
-                      </span>
+                      <div className="field-meta">
+                        <span className="type-badge">
+                          {field.field_type}
+                        </span>
 
-                      <span>
-                        {field.required ? "Required" : "Optional"}
-                      </span>
+                        <span>
+                          {field.required
+                            ? "Required"
+                            : "Optional"}
+                        </span>
+                      </div>
+
+                      {field.field_type ===
+                        "dropdown" &&
+                        field.options && (
+                          <div className="options-list">
+                            Options:{" "}
+                            {field.options.join(", ")}
+                          </div>
+                        )}
                     </div>
 
-                    {field.field_type === "dropdown" &&
-                      field.options && (
-                        <div className="options-list">
-                          Options: {field.options.join(", ")}
-                        </div>
-                      )}
+                    {!isProtectedField(field.name) && (
+                      <button
+                        type="button"
+                        className="delete-button"
+                        onClick={() =>
+                          handleDeleteField(field)
+                        }
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

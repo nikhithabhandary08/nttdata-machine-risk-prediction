@@ -114,3 +114,14 @@ export async function predictMachineRisk(predictionData) {
 
   return data;
 }
+
+export async function deleteField(fieldId) {
+  const response = await fetch(`${API_BASE_URL}/fields/${fieldId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.detail || "Failed to delete field.");
+  }
+}

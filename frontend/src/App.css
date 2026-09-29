@@ -468,6 +468,7 @@
 }
 
 .field-form input[type="text"],
+.field-form input[type="number"],
 .field-form select {
   width: 100%;
   padding: 11px 12px;
@@ -476,9 +477,11 @@
   background: #ffffff;
   color: #101828;
   outline: none;
+  box-sizing: border-box;
 }
 
 .field-form input[type="text"]:focus,
+.field-form input[type="number"]:focus,
 .field-form select:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px #eff6ff;
@@ -596,25 +599,61 @@
   }
 }
 
+/* Risk Prediction */
+
 .prediction-result {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
   padding: 24px;
   border-radius: 14px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
 }
 
+.prediction-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 24px;
+}
+
+.prediction-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.prediction-detail span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.prediction-detail strong {
+  color: #101828;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.prediction-risk {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
 .prediction-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #64748b;
 }
 
-.prediction-result strong {
-  font-size: 28px;
+.prediction-risk strong {
+  font-size: 30px;
   line-height: 1.2;
+  font-weight: 700;
 }
 
 .risk-high {
@@ -622,7 +661,7 @@
   background: #fef2f2;
 }
 
-.risk-high strong {
+.risk-high .prediction-risk strong {
   color: #dc2626;
 }
 
@@ -631,7 +670,7 @@
   background: #fffbeb;
 }
 
-.risk-medium strong {
+.risk-medium .prediction-risk strong {
   color: #d97706;
 }
 
@@ -640,6 +679,35 @@
   background: #f0fdf4;
 }
 
-.risk-low strong {
+.risk-low .prediction-risk strong {
   color: #16a34a;
+}
+
+@media (max-width: 650px) {
+  .prediction-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-item-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.delete-button {
+  flex-shrink: 0;
+  padding: 7px 10px;
+  border: 1px solid #fca5a5;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #fef2f2;
 }

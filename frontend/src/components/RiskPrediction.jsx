@@ -1,36 +1,120 @@
-import { useState } from "react";
-import { predictMachineRisk } from "../services/api";
+import { useEffect, useState } from "react";
+import { getMachines, predictMachineRisk } from "../services/api";
 
 function RiskPrediction() {
+  const [machines, setMachines] = useState([]);
+  const [selectedMachineId, setSelectedMachineId] = useState("");
+
   const [temperature, setTemperature] = useState("");
   const [pressure, setPressure] = useState("");
   const [vibration, setVibration] = useState("");
 
-  const [risk, setRisk] = useState("");
+  const [lastPrediction, setLastPrediction] = useState(null);
+
   const [loading, setLoading] = useState(false);
+  const [loadingMachines, setLoadingMachines] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadMachines() {
+      try {
+        setLoadingMachines(true);
+
+        const data = await getMachines();
+
+        setMachines(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoadingMachines(false);
+      }
+    }
+
+    loadMachines();
+  }, []);
+
+  function handleMachineChange(event) {
+    const machineId = event.target.value;
+
+    setSelectedMachineId(machineId);
+    setLastPrediction(null);
+    setError("");
+
+    if (!machineId) {
+      setTemperature("");
+      setPressure("");
+      setVibration("");
+      return;
+    }
+
+    const machine = machines.find(
+      (item) => String(item.id) === machineId
+    );
+
+    if (!machine) {
+      return;
+    }
+
+    const values = {};
+
+    machine.values.forEach((item) => {
+      values[item.field_name] = item.value;
+    });
+
+    setTemperature(values.Temperature || "");
+    setPressure(values.Pressure || "");
+    setVibration(values.Vibration || "");
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     setError("");
-    setRisk("");
 
-    if (!temperature || !pressure || !vibration) {
-      setError("Please provide all prediction inputs.");
+    if (!selectedMachineId) {
+      setError("Please select a machine.");
       return;
     }
+
+    if (!temperature || !pressure || !vibration) {
+      setError("The selected machine is missing prediction inputs.");
+      return;
+    }
+
+    const selectedMachine = machines.find(
+      (machine) => String(machine.id) === selectedMachineId
+    );
+
+    const machineNameValue = selectedMachine?.values.find(
+      (item) => item.field_name === "Machine Name"
+    );
+
+    const machineName =
+      machineNameValue?.value || `Machine ${selectedMachineId}`;
+
+    const predictionInput = {
+      temperature: Number(temperature),
+      pressure: Number(pressure),
+      vibration,
+    };
 
     try {
       setLoading(true);
 
-      const result = await predictMachineRisk({
-        temperature: Number(temperature),
-        pressure: Number(pressure),
-        vibration,
+      const result = await predictMachineRisk(predictionInput);
+
+      setLastPrediction({
+        machineName,
+        temperature: predictionInput.temperature,
+        pressure: predictionInput.pressure,
+        vibration: predictionInput.vibration,
+        risk: result.risk,
       });
 
-      setRisk(result.risk);
+      setSelectedMachineId("");
+      setTemperature("");
+      setPressure("");
+      setVibration("");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -47,8 +131,8 @@ function RiskPrediction() {
           <h3>Risk Prediction</h3>
 
           <p>
-            Predict machine risk using the local Python
-            machine learning model.
+            Select a machine and predict its risk using the local
+            Python machine learning model.
           </p>
         </div>
       </div>
@@ -60,7 +144,7 @@ function RiskPrediction() {
               <h4>Prediction Inputs</h4>
 
               <p>
-                Enter the machine conditions used by the
+                Select a machine to load the conditions used by the
                 current risk model.
               </p>
             </div>
@@ -70,6 +154,37 @@ function RiskPrediction() {
             className="field-form"
             onSubmit={handleSubmit}
           >
+            <label>
+              Select Machine
+
+              <select
+                value={selectedMachineId}
+                onChange={handleMachineChange}
+                disabled={loadingMachines}
+              >
+                <option value="">
+                  {loadingMachines
+                    ? "Loading machines..."
+                    : "Select Machine"}
+                </option>
+
+                {machines.map((machine) => {
+                  const machineName = machine.values.find(
+                    (item) => item.field_name === "Machine Name"
+                  );
+
+                  return (
+                    <option
+                      key={machine.id}
+                      value={machine.id}
+                    >
+                      {machineName?.value || `Machine ${machine.id}`}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+
             <label>
               Temperature
 
@@ -124,11 +239,9 @@ function RiskPrediction() {
             <button
               type="submit"
               className="primary-button"
-              disabled={loading}
+              disabled={loading || loadingMachines}
             >
-              {loading
-                ? "Predicting..."
-                : "Predict Risk"}
+              {loading ? "Predicting..." : "Predict Risk"}
             </button>
           </form>
         </section>
@@ -139,32 +252,60 @@ function RiskPrediction() {
               <h4>Prediction Result</h4>
 
               <p>
-                Result returned by the local Python ML
-                model.
+                Result returned by the local Python ML model.
               </p>
             </div>
           </div>
-{risk ? (
-  <div
-    className={`prediction-result ${
-      risk.toLowerCase().includes("high")
-        ? "risk-high"
-        : risk.toLowerCase().includes("medium")
-          ? "risk-medium"
-          : "risk-low"
-    }`}
-  >
-    <span className="prediction-label">
-      Predicted Risk
-    </span>
 
-    <strong>{risk}</strong>
-  </div>
-) : (
-  <div className="empty-state">
-    Enter machine values and run a prediction.
-  </div>
-)}
+          {lastPrediction ? (
+            <div
+              className={`prediction-result ${
+                lastPrediction.risk
+                  .toLowerCase()
+                  .includes("high")
+                  ? "risk-high"
+                  : lastPrediction.risk
+                      .toLowerCase()
+                      .includes("medium")
+                    ? "risk-medium"
+                    : "risk-low"
+              }`}
+            >
+              <div className="prediction-details">
+                <div className="prediction-detail">
+                  <span>Machine</span>
+                  <strong>{lastPrediction.machineName}</strong>
+                </div>
+
+                <div className="prediction-detail">
+                  <span>Temperature</span>
+                  <strong>{lastPrediction.temperature}</strong>
+                </div>
+
+                <div className="prediction-detail">
+                  <span>Pressure</span>
+                  <strong>{lastPrediction.pressure}</strong>
+                </div>
+
+                <div className="prediction-detail">
+                  <span>Vibration</span>
+                  <strong>{lastPrediction.vibration}</strong>
+                </div>
+              </div>
+
+              <div className="prediction-risk">
+                <span className="prediction-label">
+                  Predicted Risk
+                </span>
+
+                <strong>{lastPrediction.risk}</strong>
+              </div>
+            </div>
+          ) : (
+            <div className="empty-state">
+              Select a machine and run a prediction.
+            </div>
+          )}
         </section>
       </div>
     </div>
