@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import FieldConfiguration from "./components/FieldConfiguration";
+import MachineRecords from "./components/MachineRecords";
 
 function App() {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -85,12 +86,7 @@ function App() {
 
           {activeSection === "fields" && <FieldConfiguration />}
 
-          {activeSection === "machines" && (
-            <SectionPlaceholder
-              title="Machine Records"
-              description="Create, view, edit, and delete machine records."
-            />
-          )}
+          {activeSection === "machines" && <MachineRecords />}
 
           {activeSection === "prediction" && (
             <SectionPlaceholder

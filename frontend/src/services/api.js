@@ -27,3 +27,66 @@ export async function createField(fieldData) {
 
   return data;
 }
+
+export async function getMachines() {
+  const response = await fetch(`${API_BASE_URL}/machines/`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch machine records.");
+  }
+
+  return response.json();
+}
+
+export async function createMachine(machineData) {
+  const response = await fetch(`${API_BASE_URL}/machines/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(machineData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to create machine.");
+  }
+
+  return data;
+}
+
+export async function updateMachine(machineId, machineData) {
+  const response = await fetch(
+    `${API_BASE_URL}/machines/${machineId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(machineData),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to update machine.");
+  }
+
+  return data;
+}
+
+export async function deleteMachine(machineId) {
+  const response = await fetch(
+    `${API_BASE_URL}/machines/${machineId}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.detail || "Failed to delete machine.");
+  }
+}
